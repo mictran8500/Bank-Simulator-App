@@ -61,6 +61,7 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+// Function for displaying movements in the app
 const displayMovements = function (movements) {
   // emptying movements section before adding any deposits/withdrawals
   containerMovements.innerHTML = '';
@@ -84,16 +85,49 @@ const displayMovements = function (movements) {
 };
 displayMovements(account1.movements);
 
+// Calculating the current balance for the account and displaying it.
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+
+  labelBalance.textContent = `${balance} USD`;
+};
+
+calcDisplayBalance(account1.movements);
+
+// Creates usernames based on the initials
+const createUsernames = function (acc) {
+  // We will be traversing the array with all accounts,
+  // and creating and adding a username to each account object.
+  // Since split returns an array with each name, we can immediately call the
+  // map method on the returned array.
+  // And then that returns an array with the initials, so we call the join method
+  // on it to combine them into a single string.
+  // Also, we use forEach and not map to loop over the array because we do not want to create a new array.
+  acc.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name[0])
+      .join('');
+  });
+};
+
+// Creating usernames for all accounts.
+createUsernames(accounts);
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
 
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
+// const currencies = new Map([
+//   ['USD', 'United States dollar'],
+//   ['EUR', 'Euro'],
+//   ['GBP', 'Pound sterling'],
+// ]);
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+// const dogHumanAge = arr.map(age => (age <= 2 ? 2 * age : 16 + age * 4));
+// dogHumanAge.filter(age => age >= 18);
 
 /////////////////////////////////////////////////
