@@ -1,5 +1,17 @@
 # Bank-Simulator-App
 This is a small bank simulation app I created to practice learning JavaScript  
+
+Try it out! https://mictran8500.github.io/Bank-Simulator-App  
+Sample users:  
+  username: mt  
+  password: 1111  
+  
+  username: rl  
+  password: 2222  
+  
+  username: tn  
+  password: 3333  
+
 Features include:  
 - Logging in using a generated username and password
 - Depositing currency  
