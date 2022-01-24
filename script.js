@@ -1,6 +1,6 @@
 'use strict';
 
-// BANKIST APP
+// BANK APP
 
 // Data
 const account1 = {
@@ -73,7 +73,7 @@ const displayMovements = function (movements) {
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-        <div class="movements__value">${mov}</div>
+        <div class="movements__value">$${mov}</div>
       </div>`;
 
     // 'afterbegin' adds the html right at the start of the "movements" section
@@ -83,10 +83,11 @@ const displayMovements = function (movements) {
 };
 
 // Calculating the current balance for the account and displaying it.
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-
-  labelBalance.textContent = `$${balance}`;
+const calcDisplayBalance = function (acc) {
+  // Remember we can add a property to this acc object because we pass
+  // objects by reference
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `$${acc.balance}`;
 };
 
 // Calculating and displaying the total incoming and outcoming movements
@@ -131,6 +132,18 @@ createUsernames(accounts);
 // Event Handlers
 let currentAcc;
 
+// Update UI
+const updateUI = function (acc) {
+  // Display movements
+  displayMovements(acc.movements);
+
+  // Display balance
+  calcDisplayBalance(acc);
+
+  // Display summary
+  calcDisplaySummary(acc);
+};
+
 // Logging in functionality
 btnLogin.addEventListener('click', function (e) {
   // Prevents the default event from occuring, so form submission does not reload page
@@ -151,30 +164,56 @@ btnLogin.addEventListener('click', function (e) {
     // Clear input fields
     inputLoginPin.value = inputLoginUsername.value = '';
 
-    // Display movements
-    displayMovements(currentAcc.movements);
-
-    // Display balance
-    calcDisplayBalance(currentAcc.movements);
-
-    // Display summary
-    calcDisplaySummary(currentAcc);
+    // Update UI
+    updateUI(currentAcc);
   }
 });
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
+// Transfering money to another account
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const recieverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+  inputTransferAmount.value = inputTransferTo.value = '';
 
-// const currencies = new Map([
-//   ['USD', 'United States dollar'],
-//   ['EUR', 'Euro'],
-//   ['GBP', 'Pound sterling'],
-// ]);
+  // Removing movement from the current account (if they have enough money)
+  if (
+    amount > 0 &&
+    recieverAcc &&
+    currentAcc.balance >= amount &&
+    recieverAcc.username !== currentAcc.username
+  ) {
+    currentAcc.movements.push(-amount);
+    recieverAcc.movements.push(amount);
+  }
 
-// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+  updateUI(currentAcc);
+});
 
-// const dogHumanAge = arr.map(age => (age <= 2 ? 2 * age : 16 + age * 4));
-// dogHumanAge.filter(age => age >= 18);
+// Closing Account
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  if (
+    inputCloseUsername.value === currentAcc.username &&
+    Number(inputClosePin.value) === currentAcc.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAcc.username
+    );
 
-/////////////////////////////////////////////////
+    // Saving name to say goodbye
+    const name = currentAcc.owner;
+
+    // Deleting the single found account at said index
+    accounts.splice(index, 1);
+
+    // Hide UI
+    containerApp.style.opacity = 0;
+
+    // Goodbye
+    labelWelcome.textContent = `Goodbye ${name}`;
+  }
+  inputCloseUsername.value = inputClosePin.value = '';
+});
