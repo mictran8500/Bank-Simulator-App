@@ -14,8 +14,7 @@ Sample users:
 
 Features include:  
 - Logging in using a generated username and password
-- Depositing currency  
-- Withdrawing currency  
+- Transfering money
 - Requesting a loan  
 - Deleting your account  
 - Sorting the transactions  
