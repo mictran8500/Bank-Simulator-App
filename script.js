@@ -1,7 +1,5 @@
 'use strict';
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
 // BANKIST APP
 
 // Data
@@ -83,16 +81,33 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovements(account1.movements);
 
 // Calculating the current balance for the account and displaying it.
 const calcDisplayBalance = function (movements) {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
 
-  labelBalance.textContent = `${balance} USD`;
+  labelBalance.textContent = `$${balance}`;
 };
 
-calcDisplayBalance(account1.movements);
+// Calculating and displaying the total incoming and outcoming movements
+const calcDisplaySummary = function (acc) {
+  const inc = acc.movements
+    .filter(mov => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `$${inc}`;
+
+  const out = acc.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `$${Math.abs(out)}`;
+
+  const interest = acc.movements
+    .filter(mov => mov > 0)
+    .map(deposit => (deposit * acc.interestRate) / 100)
+    .filter(int => int >= 1)
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `$${interest}`;
+};
 
 // Creates usernames based on the initials
 const createUsernames = function (acc) {
@@ -111,9 +126,41 @@ const createUsernames = function (acc) {
       .join('');
   });
 };
-
-// Creating usernames for all accounts.
 createUsernames(accounts);
+
+// Event Handlers
+let currentAcc;
+
+// Logging in functionality
+btnLogin.addEventListener('click', function (e) {
+  // Prevents the default event from occuring, so form submission does not reload page
+  e.preventDefault();
+
+  // Comparing input from form field to accounts array, and returning correct account
+  currentAcc = accounts.find(acc => acc.username === inputLoginUsername.value);
+
+  // So first we check to see if the current account exists with '?',
+  // Then we chain the rest, the pin property will only be read if the account exists.
+  if (currentAcc?.pin === Number(inputLoginPin.value)) {
+    // Display UI and the welcome message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAcc.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+
+    // Clear input fields
+    inputLoginPin.value = inputLoginUsername.value = '';
+
+    // Display movements
+    displayMovements(currentAcc.movements);
+
+    // Display balance
+    calcDisplayBalance(currentAcc.movements);
+
+    // Display summary
+    calcDisplaySummary(currentAcc);
+  }
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
