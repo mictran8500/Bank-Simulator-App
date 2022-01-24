@@ -60,11 +60,15 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 // Function for displaying movements in the app
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   // emptying movements section before adding any deposits/withdrawals
   containerMovements.innerHTML = '';
 
-  movements.forEach(function (mov, i) {
+  // Sort movements?
+  // Using slice to create shallow copy
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     // using template literal to add html to the DOM
@@ -192,6 +196,21 @@ btnTransfer.addEventListener('click', function (e) {
   updateUI(currentAcc);
 });
 
+// Requesting loan
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+
+  if (amount > 0 && currentAcc.movements.some(mov => mov >= amount * 0.1)) {
+    // Add loan movement
+    currentAcc.movements.push(amount);
+
+    // Update UI
+    updateUI(currentAcc);
+  }
+  inputLoanAmount.value = '';
+});
+
 // Closing Account
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
@@ -216,4 +235,13 @@ btnClose.addEventListener('click', function (e) {
     labelWelcome.textContent = `Goodbye ${name}`;
   }
   inputCloseUsername.value = inputClosePin.value = '';
+});
+
+// Sorting button
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  // passing in !sorted because we want the opposite to happen when we click sort
+  displayMovements(currentAcc.movements, !sorted);
+  sorted = !sorted;
 });
